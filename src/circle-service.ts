@@ -42,9 +42,6 @@ export class CircleTransferService {
     accountAddress: string,
     chain: string
   ): Promise<any> {
-    console.log(
-      `Fetching recipient addresses from Circle (${this.environment})`
-    );
     const response =
       await this.circleClient.addresses.listBusinessRecipientAddresses();
     const data = response.data?.data || [];
@@ -117,7 +114,11 @@ export class CircleTransferService {
       );
       console.error((error as any).response.data);
 
-      return null;
+      throw new Error(
+        `Failed to create transfer in ${this.environment} environment: ${
+          (error as any).response.data.message
+        }`
+      );
     }
   }
 }

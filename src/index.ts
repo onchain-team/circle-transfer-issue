@@ -15,6 +15,69 @@ function loadTestParams() {
   }
 }
 
+/**
+ * Get recipient for a blockchain address
+ */
+async function getRecipient(
+  service: CircleTransferService,
+  address: string,
+  chain: string,
+  environment: string
+) {
+  console.log(`Getting recipient ID from address in ${environment}...`);
+  const recipient = await service.getRecipientForAddress(address, chain);
+
+  if (!recipient) {
+    throw new Error(
+      `Destination recipient not found in ${environment} environment`
+    );
+  }
+
+  return recipient;
+}
+
+/**
+ * Create a transfer safely with error handling
+ */
+async function safeCreateTransfer(
+  service: CircleTransferService,
+  recipientId: string,
+  amount: string,
+  environment: string
+) {
+  try {
+    console.log(`Creating transfer in ${environment}...`);
+    await service.createTransfer(recipientId, amount);
+    console.log(`✅ ${environment} transfer completed successfully`);
+  } catch (error) {
+    console.error(`❌ Failed to create transfer in ${environment}:`);
+  }
+}
+
+/**
+ * Run test for a specific environment
+ */
+async function runEnvironmentTest(
+  environment: "sandbox" | "production",
+  destination: { address: string; chain: string },
+  amount: string
+) {
+  console.log(`\n==== TESTING ${environment.toUpperCase()} ENVIRONMENT ====`);
+
+  const service = new CircleTransferService(environment);
+
+  // Step 1: Get recipient ID from address
+  const recipient = await getRecipient(
+    service,
+    destination.address,
+    destination.chain,
+    environment
+  );
+
+  // Step 2: Create transfer using recipient ID
+  await safeCreateTransfer(service, recipient.id, amount, environment);
+}
+
 async function main() {
   try {
     // Validate configuration
@@ -31,45 +94,9 @@ async function main() {
     console.log("Amount:", amount);
     console.log("Currency:", currency);
 
-    // Test in Sandbox environment
-    console.log("\n==== TESTING SANDBOX ENVIRONMENT ====");
-    const sandboxService = new CircleTransferService("sandbox");
-    // Step 1: Get recipient ID from address
-    console.log("Getting recipient ID from address in Sandbox...");
-    const sandboxRecipient = await sandboxService.getRecipientForAddress(
-      sandboxDestination.address,
-      sandboxDestination.chain
-    );
-
-    if (!sandboxRecipient) {
-      console.error("Destination recipient not found in Sandbox environment");
-      return;
-    }
-
-    // Step 2: Create transfer using recipient ID
-    await sandboxService.createTransfer(sandboxRecipient.id, amount);
-    console.log("✅ Sandbox test completed successfully");
-
-    // Test in Production environment
-    console.log("\n==== TESTING PRODUCTION ENVIRONMENT ====");
-    const prodService = new CircleTransferService("production");
-    // Step 1: Get recipient ID from address
-    console.log("Getting recipient ID from address in Production...");
-    const productionRecipient = await prodService.getRecipientForAddress(
-      productionDestination.address,
-      productionDestination.chain
-    );
-
-    if (!productionRecipient) {
-      console.error(
-        "Destination recipient not found in Production environment"
-      );
-      return;
-    }
-
-    // Step 2: Create transfer using recipient ID
-    await prodService.createTransfer(productionRecipient.id, amount);
-    console.log("✅ Production test completed successfully");
+    // Run tests for both environments
+    await runEnvironmentTest("sandbox", sandboxDestination, amount);
+    await runEnvironmentTest("production", productionDestination, amount);
   } catch (error) {
     console.error("Error running test:", error);
     process.exit(1);
