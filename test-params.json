@@ -1,0 +1,12 @@
+{
+  "sandboxDestination": {
+    "address": "0x7568b742d02023897162795cfacac3690720d77d",
+    "chain": "sepolia"
+  },
+  "productionDestination": {
+    "address": "0x7568b742d02023897162795cfacac3690720d77d",
+    "chain": "ethereum"
+  },
+  "amount": "1.00",
+  "currency": "USD"
+}

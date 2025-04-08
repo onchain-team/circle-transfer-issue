@@ -1,0 +1,23 @@
+{
+  "name": "circle-transfer-issue",
+  "version": "1.0.0",
+  "description": "Reproduction case for Circle SDK createBusinessTransfer issue",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["circle", "transfer", "reproduction"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@circle-fin/circle-sdk": "^1.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.6.0"
+  }
+}
