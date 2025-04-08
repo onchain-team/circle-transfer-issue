@@ -1,13 +1,28 @@
 # Circle Transfer Issue Reproduction
 
-This project provides a minimal reproduction case for an issue with Circle SDK's `createBusinessTransfer` method that works in Sandbox but fails in Production with the error:
+This project provides a minimal reproduction case for an issue with Circle SDK's `createBusinessTransfer` method that fails with internal server errors in both Sandbox and Production environments.
 
+## Issue Description
+
+When attempting to create a business transfer using the Circle SDK's `createBusinessTransfer` method, we consistently receive internal server errors in both environments:
+
+### Sandbox Environment Error
 ```
 {
- code: -1,
- message: "Something went wrong. errId: a8aed7a7dd33ccfba17a28788f2dad13"
+  code: -1,
+  message: 'Something went wrong. errId: 4519bd58ae51501351e7c2e5a2afa9d2'
 }
 ```
+
+### Production Environment Error
+```
+{
+  code: -1,
+  message: 'Something went wrong. errId: 03f91976bf3fb6e646b1189b14f85792'
+}
+```
+
+This is not a typical client error (400 Bad Request) but rather appears to be an internal server error on Circle's side. The purpose of this repository is to provide the Circle team with a reproducible test case to help diagnose and fix the issue.
 
 ## Setup Instructions
 
@@ -55,8 +70,9 @@ This will:
 
 ## Expected Behavior
 
-- The Sandbox test should complete successfully
-- The Production test should fail with the error code -1
+The expected behavior is that transfers should work properly in both environments. Currently:
+- The Sandbox test fails with an internal server error (code: -1)
+- The Production test also fails with a similar internal server error (code: -1)
 
 ## Project Structure
 
@@ -65,6 +81,38 @@ This will:
 - `config/config.ts`: Configuration validation utility
 - `test-params.json`: Test parameters with blockchain addresses, amount, and currency
 - `.env.example`: Example environment file with configuration structure
+
+## Sample Output
+
+```
+==== TESTING SANDBOX ENVIRONMENT ====
+Getting recipient ID from address in sandbox...
+Found recipient ID for address 0x.......: .......-....-....-....-............
+Creating transfer in sandbox...
+Attempting to create transfer in sandbox environment:
+  Destination ID: ........-....-....-....-............
+  Amount: 1.00 USD
+Error creating transfer in sandbox environment:
+{
+  code: -1,
+  message: 'Something went wrong. errId: 4519bd58ae51501351e7c2e5a2afa9d2'
+}
+❌ Failed to create transfer in sandbox:
+
+==== TESTING PRODUCTION ENVIRONMENT ====
+Getting recipient ID from address in production...
+Found recipient ID for address 0x........................................: ........-....-....-....-............
+Creating transfer in production...
+Attempting to create transfer in production environment:
+  Destination ID: ........-....-....-....-............
+  Amount: 1.00 USD
+Error creating transfer in production environment:
+{
+  code: -1,
+  message: 'Something went wrong. errId: 03f91976bf3fb6e646b1189b14f85792'
+}
+❌ Failed to create transfer in production:
+```
 
 ## Requirements
 
