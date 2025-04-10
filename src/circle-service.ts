@@ -4,6 +4,7 @@ import {
   CircleEnvironments,
   MoneyCurrencyEnum,
 } from "@circle-fin/circle-sdk";
+import { randomUUID } from "crypto";
 
 export class CircleTransferService {
   private circleClient: any;
@@ -77,6 +78,7 @@ export class CircleTransferService {
     amount: string
   ): Promise<any> {
     try {
+      const idempotencyKey = randomUUID();
       console.log(
         `Attempting to create transfer in ${this.environment} environment:`
       );
@@ -87,20 +89,15 @@ export class CircleTransferService {
       const response = await this.circleClient.transfers.createBusinessTransfer(
         {
           destination: {
-            type: "wallet",
-            id: destinationId,
+            type: "verified_blockchain",
+            addressId: destinationId,
           },
           amount: {
             amount: amount,
             currency: MoneyCurrencyEnum.Usd,
           },
-          idempotencyKey: `circle-transfer-test-${Date.now()}`,
+          idempotencyKey,
         }
-      );
-
-      console.log(
-        "Transfer created successfully:",
-        JSON.stringify(response, null, 2)
       );
 
       const {
